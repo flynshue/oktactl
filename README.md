@@ -14,3 +14,6 @@ token: "fakeToken"
 ```
 
 You'll need an okta api token for your org that has at least read permissions for Applications, Users and Groups (Application Reader role and User and Group Reader)
+
+## Command reference
+[oktactl commands](docs/oktactl.md#oktactl)
