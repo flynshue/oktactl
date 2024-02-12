@@ -19,6 +19,7 @@ type OktaService interface {
 	ListApps(name string) ([]oktaapi.App, error)
 	GetAppById(appID string) (oktaapi.App, error)
 	ListAppsGroups(appID string) (oktaapi.App, []oktaapi.GroupAssignmentResp, error)
+	ListOktaGroups(name string) ([]oktaapi.Group, error)
 }
 
 func listApps(os OktaService, name string) error {
@@ -66,6 +67,20 @@ func listAppsGroups(os OktaService, appID string) error {
 			fmt.Println(group.Role)
 		}
 	}
+	return nil
+}
+
+func listOktaGroups(os OktaService, keyword string) error {
+	groups, err := os.ListOktaGroups(keyword)
+	if err != nil {
+		return err
+	}
+	w := newTabWriter()
+	fmt.Fprintln(w, "Okta Group ID\t Name\t")
+	for _, group := range groups {
+		fmt.Fprintf(w, "%s\t %s\t\n", group.ID, group.Name)
+	}
+	w.Flush()
 	return nil
 }
 

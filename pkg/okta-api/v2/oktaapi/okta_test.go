@@ -310,6 +310,82 @@ func (m *MockOktaGroupService) GetGroup(ctx context.Context, groupId string) (*o
 	return nil, &okta.Response{Response: resp}, nil
 }
 
+func (m *MockOktaGroupService) ListGroups(ctx context.Context, qp *query.Params) ([]*okta.Group, *okta.Response, error) {
+	body := `[
+		{
+		  "id": "00g1emaKYZTWRYYRRTSK",
+		  "created": "2015-02-06T10:11:28.000Z",
+		  "lastUpdated": "2015-10-05T19:16:43.000Z",
+		  "lastMembershipUpdated": "2015-11-28T19:15:32.000Z",
+		  "objectClass": [
+			"okta:user_group"
+		  ],
+		  "type": "OKTA_GROUP",
+		  "profile": {
+			"name": "West Coast Users",
+			"description": "All Users West of The Rockies"
+		  },
+		  "_links": {
+			"logo": [
+			  {
+				"name": "medium",
+				"href": "https://{yourOktaDomain}/img/logos/groups/okta-medium.png",
+				"type": "image/png"
+			  },
+			  {
+				"name": "large",
+				"href": "https://{yourOktaDomain}/img/logos/groups/okta-large.png",
+				"type": "image/png"
+			  }
+			],
+			"users": {
+			  "href": "https://{yourOktaDomain}/api/v1/groups/00g1emaKYZTWRYYRRTSK/users"
+			},
+			"apps": {
+			  "href": "https://{yourOktaDomain}/api/v1/groups/00g1emaKYZTWRYYRRTSK/apps"
+			}
+		  }
+		},
+		{
+		  "id": "00gak46y5hydV6NdM0g4",
+		  "created": "2015-07-22T08:45:03.000Z",
+		  "lastUpdated": "2015-07-22T08:45:03.000Z",
+		  "lastMembershipUpdated": "2015-10-22T08:45:03.000Z",
+		  "objectClass": [
+			"okta:user_group"
+		  ],
+		  "type": "OKTA_GROUP",
+		  "profile": {
+			"name": "Squabble of Users",
+			"description": "Keep Calm and Single Sign-On"
+		  },
+		  "_links": {
+			"logo": [
+			  {
+				"name": "medium",
+				"href": "https://{yourOktaDomain}/img/logos/groups/okta-medium.png",
+				"type": "image/png"
+			  },
+			  {
+				"name": "large",
+				"href": "https://{yourOktaDomain}/img/logos/groups/okta-large.png",
+				"type": "image/png"
+			  }
+			],
+			"users": {
+			  "href": "https://{yourOktaDomain}/api/v1/groups/00gak46y5hydV6NdM0g4/users"
+			},
+			"apps": {
+			  "href": "https://{yourOktaDomain}/api/v1/groups/00gak46y5hydV6NdM0g4/apps"
+			}
+		  }
+		}
+	  ]`
+
+	buf := bytes.NewBufferString(body)
+	return nil, &okta.Response{Response: &http.Response{Body: io.NopCloser(buf), Status: "200 OK", StatusCode: 200}}, nil
+}
+
 func TestOktaClient_ListApps(t *testing.T) {
 	client := &OktaClient{OktaAppService: mockAS, OktaGroupService: mockGS, Ctx: context.Background()}
 	apps, err := client.ListApps("datadog")
@@ -346,5 +422,16 @@ func TestOktaClient_ListAppsGroups(t *testing.T) {
 		if group.Role != "" {
 			fmt.Println(group.Role)
 		}
+	}
+}
+
+func TestOktaClient_ListGroups(t *testing.T) {
+	client := &OktaClient{OktaAppService: mockAS, OktaGroupService: mockGS, Ctx: context.Background()}
+	groups, err := client.ListOktaGroups("test")
+	if err != nil {
+		t.Error(err)
+	}
+	for _, g := range groups {
+		fmt.Printf("%s  %s\n", g.ID, g.Profile.Name)
 	}
 }

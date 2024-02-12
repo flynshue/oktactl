@@ -47,6 +47,14 @@ func (m *MockOktaClient) ListAppsGroups(appID string) (oktaapi.App, []oktaapi.Gr
 		}, nil
 }
 
+func (m *MockOktaClient) ListOktaGroups(name string) ([]oktaapi.Group, error) {
+	return []oktaapi.Group{
+		{ID: "00g1emaKYZTWRYYRRTSK", Profile: oktaapi.Profile{Name: "Fake Group 01"}},
+		{ID: "00gg0xVALADWBPXOFZAS", Profile: oktaapi.Profile{Name: "Fake Group 02"}},
+		{ID: "00gg0xVALADWBPXOFZAK", Profile: oktaapi.Profile{Name: "Fake Group 03"}},
+	}, nil
+}
+
 func TestListApps(t *testing.T) {
 	if err := listApps(&MockOktaClient{}, "test"); err != nil {
 		t.Error(err)
@@ -61,6 +69,12 @@ func TestGetAppByID(t *testing.T) {
 
 func TestListAppsGroups(t *testing.T) {
 	if err := listAppsGroups(&MockOktaClient{}, "0oa1gjh63g214q0Hq0g4"); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestListOktaGroups(t *testing.T) {
+	if err := listOktaGroups(&MockOktaClient{}, "test"); err != nil {
 		t.Error(err)
 	}
 }

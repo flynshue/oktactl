@@ -3,6 +3,7 @@ package oktaapi
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 
 	"github.com/okta/okta-sdk-golang/v2/okta"
@@ -17,6 +18,7 @@ type OktaAppService interface {
 
 type OktaGroupService interface {
 	GetGroup(ctx context.Context, groupId string) (*okta.Group, *okta.Response, error)
+	ListGroups(ctx context.Context, qp *query.Params) ([]*okta.Group, *okta.Response, error)
 }
 
 type App struct {
@@ -103,6 +105,24 @@ func (oc *OktaClient) ListAppsGroups(appID string) (App, []GroupAssignmentResp, 
 		groups[i] = group
 	}
 	return app, groups, nil
+}
+
+func (oc *OktaClient) ListOktaGroups(name string) ([]Group, error) {
+	params := query.NewQueryParams(query.WithLimit(100), query.WithSearch(fmt.Sprintf("profile.name sw \"%s\"", name)))
+	_, resp, err := oc.ListGroups(oc.Ctx, params)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	groups := []Group{}
+	if err := json.Unmarshal(b, &groups); err != nil {
+		return nil, err
+	}
+	return groups, nil
 }
 
 func (oc *OktaClient) GetAppById(appID string) (App, error) {

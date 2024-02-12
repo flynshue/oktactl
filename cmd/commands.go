@@ -18,6 +18,7 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -61,6 +62,21 @@ var listAppGroupAssignment = &cobra.Command{
 	},
 }
 
+var listGroupsCmd = &cobra.Command{
+	Use:   "groups [group name]",
+	Short: "Searches the name property of groups using startsWith that matches what the string starts with to the query",
+	Example: ` # List groups that start with fake
+  oktactl list groups fake
+	`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if len(args) == 0 {
+			return fmt.Errorf("must supply group name")
+		}
+		keywords := strings.Join(args, " ")
+		return listOktaGroups(newClient(), keywords)
+	},
+}
+
 // listCmd represents the list command
 var listCmd = &cobra.Command{
 	Use:   "list [command]",
@@ -79,7 +95,7 @@ var versionCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(listCmd, versionCmd)
-	listCmd.AddCommand(listAppsCmd)
+	listCmd.AddCommand(listAppsCmd, listGroupsCmd)
 	listAppsCmd.AddCommand(listAppGroupAssignment)
 
 	// Here you will define your flags and configuration settings.
