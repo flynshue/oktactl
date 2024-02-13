@@ -400,8 +400,9 @@ func (m *MockOktaGroupService) ListGroupUsers(ctx context.Context, groupId strin
 		  "profile": {
 			"firstName": "Test",
 			"lastName": "User-0",
-			"email": "user0@example.com",
+			"email": "user0@example.com"
 		}
+	}
 	]
 	`
 	buf := bytes.NewBufferString(body)
