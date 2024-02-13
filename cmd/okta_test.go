@@ -55,6 +55,14 @@ func (m *MockOktaClient) ListOktaGroups(name string) ([]oktaapi.Group, error) {
 	}, nil
 }
 
+func (m *MockOktaClient) ListOktaGroupUsers(groupID string) ([]oktaapi.User, error) {
+	return []oktaapi.User{
+		{ID: "00g1emaKYZTWRYYRRTSK", Profile: oktaapi.Profile{FirstName: "Test", LastName: "User-0", Email: "user0@example.com"}},
+		{ID: "00gg0xVALADWBPXOFZAS", Profile: oktaapi.Profile{FirstName: "Test", LastName: "User_1", Email: "user1@example.com"}},
+		{ID: "00gg0xVALADWBPXOFZAK", Profile: oktaapi.Profile{FirstName: "Test", LastName: "User'2", Email: "user2@example.com"}},
+	}, nil
+}
+
 func TestListApps(t *testing.T) {
 	if err := listApps(&MockOktaClient{}, "test"); err != nil {
 		t.Error(err)
@@ -75,6 +83,12 @@ func TestListAppsGroups(t *testing.T) {
 
 func TestListOktaGroups(t *testing.T) {
 	if err := listOktaGroups(&MockOktaClient{}, "test"); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestListOktaGroupUsers(t *testing.T) {
+	if err := listOktaGroupUsers(&MockOktaClient{}, "0oa1gjh63g214q0Hq0g4"); err != nil {
 		t.Error(err)
 	}
 }

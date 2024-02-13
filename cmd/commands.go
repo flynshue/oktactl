@@ -77,6 +77,20 @@ var listGroupsCmd = &cobra.Command{
 	},
 }
 
+var listGroupUsersCmd = &cobra.Command{
+	Use:   "users [group ID]",
+	Short: "List users in group",
+	Example: ` # List users in group
+  oktactl list users 00g1hqieohhlPBv581d8
+	`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if len(args) == 0 {
+			return fmt.Errorf("must supply group ID")
+		}
+		return listOktaGroupUsers(newClient(), args[0])
+	},
+}
+
 // listCmd represents the list command
 var listCmd = &cobra.Command{
 	Use:   "list [command]",
@@ -95,7 +109,7 @@ var versionCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(listCmd, versionCmd)
-	listCmd.AddCommand(listAppsCmd, listGroupsCmd)
+	listCmd.AddCommand(listAppsCmd, listGroupsCmd, listGroupUsersCmd)
 	listAppsCmd.AddCommand(listAppGroupAssignment)
 
 	// Here you will define your flags and configuration settings.

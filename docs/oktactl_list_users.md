@@ -1,23 +1,23 @@
-## oktactl list groups
+## oktactl list users
 
-Searches the name property of groups using startsWith that matches what the string starts with to the query
+List users in group
 
 ```
-oktactl list groups [group name] [flags]
+oktactl list users [group ID] [flags]
 ```
 
 ### Examples
 
 ```
- # List groups that start with fake
-  oktactl list groups fake
+ # List users in group
+  oktactl list users 00g1hqieohhlPBv581d8
 	
 ```
 
 ### Options
 
 ```
-  -h, --help   help for groups
+  -h, --help   help for users
 ```
 
 ### Options inherited from parent commands
