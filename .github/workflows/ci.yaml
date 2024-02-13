@@ -24,6 +24,9 @@ jobs:
       - name: Download Go deps
         run: go mod download
 
+      - name: Run tests
+        run: go test -v ./...
+
       - name: Get version
         id: versions
         run: echo "version=$(<VERSION)" >> $GITHUB_OUTPUT
