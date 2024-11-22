@@ -32,6 +32,11 @@ var (
 	Version = "unreleased"
 )
 
+var (
+	username string
+	groupID  string
+)
+
 var listAppsCmd = &cobra.Command{
 	Use:   "apps [name]",
 	Short: "list apps by name",
@@ -77,17 +82,27 @@ var listGroupsCmd = &cobra.Command{
 	},
 }
 
-var listGroupUsersCmd = &cobra.Command{
-	Use:   "users [group ID]",
-	Short: "List users in group",
+var listUsersCmd = &cobra.Command{
+	Use:   "users",
+	Short: "List users in group or list groups for a user",
 	Example: ` # List users in group
-  oktactl list users 00g1hqieohhlPBv581d8
+oktactl list users --group 00g1hqieohhlPBv581d8
+
+# List groups for user
+oktactl list users --name someuser
 	`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if len(args) == 0 {
-			return fmt.Errorf("must supply group ID")
+		if groupID != "" && username != "" {
+			return fmt.Errorf("must supply --group or --name")
 		}
-		return listOktaGroupUsers(newClient(), args[0])
+		if groupID != "" {
+			return listOktaGroupUsers(newClient(), groupID)
+		}
+		if username != "" {
+			fmt.Println("list users' groups goes here")
+			return nil
+		}
+		return fmt.Errorf("must supply --group or --name")
 	},
 }
 
@@ -109,8 +124,10 @@ var versionCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(listCmd, versionCmd)
-	listCmd.AddCommand(listAppsCmd, listGroupsCmd, listGroupUsersCmd)
+	listCmd.AddCommand(listAppsCmd, listGroupsCmd, listUsersCmd)
 	listAppsCmd.AddCommand(listAppGroupAssignment)
+	listUsersCmd.Flags().StringVar(&username, "name", "", "okta username")
+	listUsersCmd.Flags().StringVar(&groupID, "group", "", "okta group id")
 
 	// Here you will define your flags and configuration settings.
 

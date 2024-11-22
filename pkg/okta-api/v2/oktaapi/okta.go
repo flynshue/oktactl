@@ -35,6 +35,7 @@ type User struct {
 
 type Group struct {
 	ID                    string `json:"id"`
+	Created               string `json:"created"`
 	LastUpdated           string `json:"lastUpdated"`
 	LastMembershipUpdated string `json:"lastMembershipUpdated"`
 	Type                  string `json:"type"`

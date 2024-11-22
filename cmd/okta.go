@@ -18,6 +18,7 @@ var (
 type OktaService interface {
 	ListApps(name string) ([]oktaapi.App, error)
 	GetAppById(appID string) (oktaapi.App, error)
+	GetGroupById(groupID string) (oktaapi.Group, error)
 	ListAppsGroups(appID string) (oktaapi.App, []oktaapi.GroupAssignmentResp, error)
 	ListOktaGroups(name string) ([]oktaapi.Group, error)
 	ListOktaGroupUsers(groupID string) ([]oktaapi.User, error)
@@ -77,20 +78,25 @@ func listOktaGroups(os OktaService, keyword string) error {
 		return err
 	}
 	w := newTabWriter()
-	fmt.Fprintln(w, "Okta Group ID\t Name\t")
+	fmt.Fprintln(w, "Okta Group ID\t Name\t Created\t Updated\t MembershipUpdated")
 	for _, group := range groups {
-		fmt.Fprintf(w, "%s\t %s\t\n", group.ID, group.Name)
+		fmt.Fprintf(w, "%s\t %s\t %s\t %s\t %s\t\n", group.ID, group.Name, group.Created, group.LastUpdated, group.LastMembershipUpdated)
 	}
 	w.Flush()
 	return nil
 }
 
 func listOktaGroupUsers(os OktaService, groupID string) error {
-	users, err := os.ListOktaGroupUsers(groupID)
+	group, err := os.GetGroupById(groupID)
 	if err != nil {
 		return err
 	}
 	w := newTabWriter()
+	fmt.Fprintln(w, group.Name)
+	users, err := os.ListOktaGroupUsers(groupID)
+	if err != nil {
+		return err
+	}
 	fmt.Fprintln(w, "Okta User ID\t First Name\t Last Name\t Email\t")
 	for _, user := range users {
 		fmt.Fprintf(w, "%s\t %s\t %s\t %s\n", user.ID, user.FirstName, user.LastName, user.Email)
