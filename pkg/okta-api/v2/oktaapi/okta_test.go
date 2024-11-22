@@ -409,6 +409,42 @@ func (m *MockOktaGroupService) ListGroupUsers(ctx context.Context, groupId strin
 	resp := &http.Response{Body: io.NopCloser(buf), Status: "200 Ok", StatusCode: 200}
 	return nil, &okta.Response{Response: resp}, nil
 }
+
+type MockOktaUserService struct{}
+
+var _ OktaUserService = &MockOktaUserService{}
+
+func (m *MockOktaUserService) GetUser(ctx context.Context, userId string) (*okta.User, *okta.Response, error) {
+	return &okta.User{
+		Id:     "00ub0oNGTSWTBKOLGLNR",
+		Status: "ACTIVE",
+		Profile: &okta.UserProfile{
+			"login": "isaac.brock@example.com",
+		},
+	}, nil, nil
+}
+
+func (m *MockOktaUserService) ListUserGroups(ctx context.Context, userId string) ([]*okta.Group, *okta.Response, error) {
+	body := `[
+{
+"id": "0gabcd1234",
+"profile": {
+"name": "Cloud App Users",
+"description": "Users can access cloud apps"
+}
+},
+{
+"id": "0gefgh5678",
+"profile": {
+"name": "Internal App Users",
+"description": "Users can access internal apps"
+}
+}
+]`
+	buf := bytes.NewBufferString(body)
+	resp := &http.Response{Status: "200 OK", Body: io.NopCloser(buf), StatusCode: 200}
+	return nil, &okta.Response{Response: resp}, nil
+}
 func TestOktaClient_ListApps(t *testing.T) {
 	client := &OktaClient{OktaAppService: mockAS, OktaGroupService: mockGS, Ctx: context.Background()}
 	apps, err := client.ListApps("datadog")
@@ -467,5 +503,21 @@ func TestOktaClient_ListGroupUsers(t *testing.T) {
 	}
 	for _, u := range users {
 		fmt.Printf("%s  %s\n", u.ID, u.Profile.Email)
+	}
+}
+
+func TestOktaClient_ListUsersGroups(t *testing.T) {
+	client := &OktaClient{
+		OktaAppService:   &MockOktaAppService{},
+		OktaGroupService: &MockOktaGroupService{},
+		OktaUserService:  &MockOktaUserService{},
+		Ctx:              context.Background(),
+	}
+	groups, err := client.ListUserGroups("foobar")
+	if err != nil {
+		t.Error(err)
+	}
+	for _, g := range groups {
+		fmt.Printf("%s %s\n", g.Name, g.ID)
 	}
 }

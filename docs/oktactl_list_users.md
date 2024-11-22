@@ -13,7 +13,7 @@ oktactl list users [flags]
 oktactl list users --group 00g1hqieohhlPBv581d8
 
 # List groups for user
-oktactl list users --name someuser
+oktactl list users --user someuser
 	
 ```
 
@@ -22,7 +22,7 @@ oktactl list users --name someuser
 ```
       --group string   okta group id
   -h, --help           help for users
-      --name string    okta username
+      --user string    okta username
 ```
 
 ### Options inherited from parent commands

@@ -22,6 +22,7 @@ type OktaService interface {
 	ListAppsGroups(appID string) (oktaapi.App, []oktaapi.GroupAssignmentResp, error)
 	ListOktaGroups(name string) ([]oktaapi.Group, error)
 	ListOktaGroupUsers(groupID string) ([]oktaapi.User, error)
+	ListUserGroups(name string) ([]oktaapi.Group, error)
 }
 
 func listApps(os OktaService, name string) error {
@@ -100,6 +101,20 @@ func listOktaGroupUsers(os OktaService, groupID string) error {
 	fmt.Fprintln(w, "Okta User ID\t First Name\t Last Name\t Email\t")
 	for _, user := range users {
 		fmt.Fprintf(w, "%s\t %s\t %s\t %s\n", user.ID, user.FirstName, user.LastName, user.Email)
+	}
+	w.Flush()
+	return nil
+}
+
+func listUserGroups(os OktaService, user string) error {
+	groups, err := os.ListUserGroups(user)
+	if err != nil {
+		return err
+	}
+	w := newTabWriter()
+	fmt.Fprintln(w, "Okta Group ID\t Okta Group Name\t")
+	for _, g := range groups {
+		fmt.Fprintf(w, "%s\t %s\n", g.ID, g.Name)
 	}
 	w.Flush()
 	return nil

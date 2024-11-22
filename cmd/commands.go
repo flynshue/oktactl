@@ -89,20 +89,19 @@ var listUsersCmd = &cobra.Command{
 oktactl list users --group 00g1hqieohhlPBv581d8
 
 # List groups for user
-oktactl list users --name someuser
+oktactl list users --user someuser
 	`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if groupID != "" && username != "" {
-			return fmt.Errorf("must supply --group or --name")
+			return fmt.Errorf("must supply --group or --user")
 		}
 		if groupID != "" {
 			return listOktaGroupUsers(newClient(), groupID)
 		}
 		if username != "" {
-			fmt.Println("list users' groups goes here")
-			return nil
+			return listUserGroups(newClient(), username)
 		}
-		return fmt.Errorf("must supply --group or --name")
+		return fmt.Errorf("must supply --group or --user")
 	},
 }
 
@@ -126,7 +125,7 @@ func init() {
 	rootCmd.AddCommand(listCmd, versionCmd)
 	listCmd.AddCommand(listAppsCmd, listGroupsCmd, listUsersCmd)
 	listAppsCmd.AddCommand(listAppGroupAssignment)
-	listUsersCmd.Flags().StringVar(&username, "name", "", "okta username")
+	listUsersCmd.Flags().StringVar(&username, "user", "", "okta username")
 	listUsersCmd.Flags().StringVar(&groupID, "group", "", "okta group id")
 
 	// Here you will define your flags and configuration settings.

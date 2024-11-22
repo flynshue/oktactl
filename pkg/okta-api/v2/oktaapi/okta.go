@@ -22,6 +22,11 @@ type OktaGroupService interface {
 	ListGroupUsers(ctx context.Context, groupId string, qp *query.Params) ([]*okta.User, *okta.Response, error)
 }
 
+type OktaUserService interface {
+	ListUserGroups(ctx context.Context, userId string) ([]*okta.Group, *okta.Response, error)
+	GetUser(ctx context.Context, userId string) (*okta.User, *okta.Response, error)
+}
+
 type App struct {
 	ID    string `json:"id"`
 	Name  string `json:"name"`
@@ -61,6 +66,7 @@ type Profile struct {
 type OktaClient struct {
 	OktaAppService
 	OktaGroupService
+	OktaUserService
 	Ctx context.Context
 }
 
@@ -69,7 +75,7 @@ func NewClient(url, token string) (*OktaClient, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &OktaClient{OktaAppService: client.Application, OktaGroupService: client.Group, Ctx: ctx}, nil
+	return &OktaClient{OktaAppService: client.Application, OktaGroupService: client.Group, OktaUserService: client.User, Ctx: ctx}, nil
 }
 
 func (oc *OktaClient) ListApps(name string) ([]App, error) {
@@ -185,4 +191,26 @@ func (oc *OktaClient) GetGroupById(groupID string) (Group, error) {
 		return group, err
 	}
 	return group, nil
+}
+
+func (oc *OktaClient) ListUserGroups(name string) ([]Group, error) {
+	user, _, err := oc.OktaUserService.GetUser(oc.Ctx, name)
+	// fmt.Println(user.Id)
+	if err != nil {
+		return nil, err
+	}
+	_, resp, err := oc.OktaUserService.ListUserGroups(oc.Ctx, user.Id)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	groups := []Group{}
+	if err := json.Unmarshal(b, &groups); err != nil {
+		return nil, err
+	}
+	return groups, nil
 }

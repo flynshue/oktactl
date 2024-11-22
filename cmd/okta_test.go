@@ -67,6 +67,14 @@ func (m *MockOktaClient) GetGroupById(groupID string) (oktaapi.Group, error) {
 	return oktaapi.Group{ID: groupID, Profile: oktaapi.Profile{Name: "Fake Group 01"}}, nil
 }
 
+func (m *MockOktaClient) ListUserGroups(name string) ([]oktaapi.Group, error) {
+	return []oktaapi.Group{
+		{ID: "00g1emaKYZTWRYYRRTSK", Profile: oktaapi.Profile{Name: "Fake Group 01"}},
+		{ID: "00gg0xVALADWBPXOFZAS", Profile: oktaapi.Profile{Name: "Fake Group 02"}},
+		{ID: "00gg0xVALADWBPXOFZAK", Profile: oktaapi.Profile{Name: "Fake Group 03"}},
+	}, nil
+}
+
 func TestListApps(t *testing.T) {
 	if err := listApps(&MockOktaClient{}, "test"); err != nil {
 		t.Error(err)
